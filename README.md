@@ -6,7 +6,7 @@
 └── Plate-Price-Prediction/
     ├── README.md
     ├── data
-    │   └── data_marge.ipynb
+    │   └── data_marge.ipynb # The main dataset
     ├── mergedData.csv
     └── preprocessing
         ├── PanelPlatform3.csv
