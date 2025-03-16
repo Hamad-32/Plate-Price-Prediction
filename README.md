@@ -1,5 +1,8 @@
 # Plate-Price-Prediction
 
+##  Project Structure
+
+```sh
 └── Plate-Price-Prediction/
     ├── README.md
     ├── data
@@ -18,3 +21,4 @@
         ├── mergedData.csv
         ├── mstaml_cleand.csv
         └── vip_cleand.csv
+```
