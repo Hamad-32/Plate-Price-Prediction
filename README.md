@@ -7,7 +7,6 @@
     ├── README.md
     ├── data
     │   └── data_marge.ipynb # The main dataset
-    ├── mergedData.csv
     └── preprocessing
         ├── PanelPlatform3.csv
         ├── cleaning.ipynb
