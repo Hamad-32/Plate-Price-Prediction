@@ -1,14 +1,18 @@
 import streamlit as st
 import os
 import base64
+from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
+import requests
 
 # Set page config FIRST
 st.set_page_config(
     page_title="ميِّز",
     page_icon="📊",
-    layout="wide",
     initial_sidebar_state="expanded"
 )
+
+app = FastAPI()
 
 # Allowed Arabic letters in Saudi license plates
 allowed_letters = ["أ", "ب", "ح", "د", "ر", "س", "ص", "ط", "ع", "ق", "ك", "ل", "م", "ن", "ه", "و", "ى"]
@@ -51,14 +55,41 @@ if not os.path.exists(logo_path):
 else:
     logo_base64 = get_base64_encoded_image(logo_path)
 
-# Inject custom CSS for the header
+background_path = "imgs/background.png"
+bg_encoded = get_base64_encoded_image(background_path)
+
+st.markdown(
+    f"""
+    <style>
+    .stApp {{
+        dirction: trl;
+        text-align: right;
+        background-image: url("data:image/png;base64,{bg_encoded}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }}
+    .right-align {{
+        text-align: right;
+        direction: rtl; /* Ensure Arabic text is aligned properly */
+    }}
+     div[data-testid="stMarkdownContainer"] {{
+        direction: rtl;
+        text-align: right;
+    }}
+    div[data-testid="stSelectbox"] {{
+        direction: rtl;
+        text-align: right;
+    }}
+    
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 st.markdown(
     """
     <style>
-    /* Custom CSS for the header */
-   .stApp{
-        background-color: #ebebeb;
-    }
     .stAppHeader {
         display: flex;
         align-items: center;
@@ -66,7 +97,8 @@ st.markdown(
         background-color: #c3c4c2; /* Light gray background for the header */
         position: fixed;
         margin: 0px;
-        padding: 0px;
+        padding-top: 50px;
+        padding-bottom: 5px;
         top: 0;
         left: 0;
         width: 100%;
@@ -132,14 +164,15 @@ st.markdown(
         align-items: center;
         height: 180px; /* Reduced height */
         padding: 0; /* Remove padding */
-        margin: 0; /* Remove margin */
+        margin-bottom: 15px;
         border: 0.666667px solid rgb(102, 102, 102);
-        border-radius: 4px; /* Match table border radius */
+        border-radius: 0px; 
     }
     .image-container img {
         max-width: 100%;
         max-height: 100%;
-        border-radius: 8px; /* Match table border radius */
+        border-radius: 8px;/* Match table border radius */
+       
     }
     /* Remove spacing between columns */
     .stColumn > div {
@@ -227,7 +260,6 @@ st.markdown(
         background-color: #e0e0e0; /* Darker gray on click */
         transform: scale(0.95); /* Slightly shrink on click */
     }
-    /* Exclude the "قيم لوحتي" button from the above styles */
     button[data-testid="stBaseButton-secondary"] {
         font-size: 24px; /* Increased font size */
         padding: 15px 30px; /* Increased padding */
@@ -245,7 +277,7 @@ st.markdown(
     /* Align titles to the right */
     .right-align-title {
         text-align: right;
-        font-size: 18px; /* Reduced font size */
+        font-size: 26px; 
         font-weight: bold;
         margin-bottom: 10px;
     }
@@ -258,9 +290,9 @@ st.markdown(
 st.markdown(
     f"""
     <div class="stAppHeader">
-        <h1>سيارتك</h1>
-        <img src="data:image/png;base64,{logo_base64}" alt="Logo">
         <h1>ميِّز</h1>
+        <img src="data:image/png;base64,{logo_base64}" alt="Logo">
+        <h1>سيارتك</h1>
     </div>
     """,
     unsafe_allow_html=True
@@ -285,34 +317,42 @@ for key, path in image_paths.items():
 
 encoded_images = {key: get_base64_encoded_image(path) for key, path in image_paths.items()}
 
-# Initialize session state with default values
 if "typed_arabic" not in st.session_state:
-    st.session_state["typed_arabic"] = ["أ", "س", "ك"]
+    st.session_state["typed_arabic"] = ["أ", "س", "ك"]  # Default letters
 if "typed_numbers" not in st.session_state:
-    st.session_state["typed_numbers"] = ["١", "٩", "٣", "٢"]
+    st.session_state["typed_numbers"] = ["١", "٩", "٣", "٢"]  # Default numbers
+ 
 
-# Function to handle button clicks
-def handle_button_click(key, type):
-    if type == "letter":
-        if key == "⌫":  # Backspace functionality
-            if st.session_state["typed_arabic"]:
-                st.session_state["typed_arabic"].pop()
-        else:
-            # Clear default values if they are still present
-            if st.session_state["typed_arabic"] == ["أ", "س", "ك"]:
-                st.session_state["typed_arabic"] = []
-            if len(st.session_state["typed_arabic"]) < 3:
-                st.session_state["typed_arabic"].append(key)
-    elif type == "number":
-        if key == "⌫":  # Backspace functionality
-            if st.session_state["typed_numbers"]:
-                st.session_state["typed_numbers"].pop()
-        else:
-            # Clear default values if they are still present
-            if st.session_state["typed_numbers"] == ["١", "٩", "٣", "٢"]:
-                st.session_state["typed_numbers"] = []
-            if len(st.session_state["typed_numbers"]) < 4:
-                st.session_state["typed_numbers"].append(key)
+    
+# Function to update session state for letters
+def update_text(letter):
+    if "default_set" not in st.session_state:
+        st.session_state["typed_arabic"] = []  # Clear default values
+        st.session_state["default_set"] = True
+    if letter == "⌫":
+        if st.session_state["typed_arabic"]:
+            st.session_state["typed_arabic"].pop()
+    elif len(st.session_state["typed_arabic"]) < 3:
+        st.session_state["typed_arabic"].append(letter)
+    st.rerun()
+
+# Function to update session state for numbers
+def update_numbers(number):
+    if "typed_numbers" in st.session_state and st.session_state["typed_numbers"] == ["١", "٩", "٣", "٢"]:
+        st.session_state["typed_numbers"] = []  # Clear default numbers on first input
+
+    if number == "⌫":
+        if st.session_state["typed_numbers"]:
+            st.session_state["typed_numbers"].pop()
+    elif len(st.session_state["typed_numbers"]) < 4:
+        st.session_state["typed_numbers"].append(number)
+    st.rerun()
+
+# Generate spaced Arabic and English letters
+typed_arabic_spaced = " ".join(st.session_state["typed_arabic"])
+typed_english_spaced = " ".join([en_ar.get(letter, "") for letter in reversed(st.session_state["typed_arabic"])])  # Reverse English letters
+typed_numbers_spaced = "".join(st.session_state["typed_numbers"])
+typed_numbers_english = "".join([arabic_to_english_numbers.get(num, "") for num in st.session_state["typed_numbers"]])
 
 # Function to validate input
 def validate_input():
@@ -327,21 +367,23 @@ def validate_input():
 # Two-column layout for the main content with smaller columns
 col1, col2 = st.columns([1.5, 1])  # Adjusted column widths
 
-with col1:
-    st.title("🎨 تغيير الشعار")
-    theme_choice = st.selectbox(":اختر الشعار", ["نخلة وسيفين", "نخلة وسيفين (ملون)", "رؤية 2030", "الدرعية", "العلا"])
+st.title('ميِّز سيارتك من بين كل السيارات ما أحد قدك!')
+
+
+st.markdown('<div class="right-align"><h1>🎨 تغيير الشعار</h1></div>', unsafe_allow_html=True)
+theme_choice = st.selectbox(":اختر الشعار", ["نخلة وسيفين", "نخلة وسيفين (ملون)", "رؤية 2030", "الدرعية", "العلا"])
     
     # Generate spaced Arabic and English letters
-    typed_arabic_spaced = " ".join(st.session_state["typed_arabic"])
-    typed_english_spaced = " ".join([en_ar.get(letter, "") for letter in reversed(st.session_state["typed_arabic"])])
-    typed_numbers_spaced = "".join(st.session_state["typed_numbers"])
-    typed_numbers_english = "".join([arabic_to_english_numbers.get(num, "") for num in st.session_state["typed_numbers"]])
+typed_arabic_spaced = " ".join(st.session_state["typed_arabic"])
+typed_english_spaced = " ".join([en_ar.get(letter, "") for letter in reversed(st.session_state["typed_arabic"])])
+typed_numbers_spaced = "".join(st.session_state["typed_numbers"])
+typed_numbers_english = "".join([arabic_to_english_numbers.get(num, "") for num in st.session_state["typed_numbers"]])
 
     # HTML for the nested three-column layout
-    theme_image = get_base64_encoded_image(image_paths[theme_choice])  # Replace with your actual image path
+theme_image = get_base64_encoded_image(image_paths[theme_choice])  # Replace with your actual image path
 
-    left_table_html = f"""
-    <table class="custom-table" >
+left_table_html = f"""
+<table class="custom-table" >
         <tbody>
             <tr>
                 <td class="cell-large">{typed_numbers_spaced}</td>
@@ -353,8 +395,8 @@ with col1:
     </table>
     """
 
-    right_table_html = f"""
-    <table class="custom-table">
+right_table_html = f"""
+<table class="custom-table">
         <tbody>
             <tr>
                 <td class="cell-medium">{typed_arabic_spaced}</td>
@@ -363,28 +405,27 @@ with col1:
                 <td class="cell-medium">{typed_english_spaced}</td>
             </tr>
         </tbody>
-    </table>
+</table>
     """
 
-    image_html = f"""
-    <div class="image-container">
-        <img src="data:image/png;base64,{theme_image}" alt="Theme Image">
-    </div>
+image_html = f"""
+<div class="image-container">
+    <img src="data:image/png;base64,{theme_image}" alt="Theme Image">
+</div>
     """
 
-    container_html = f"""
-    <div class="container">
-        {left_table_html}
-        {image_html}
+container_html = f"""
+ <div class="container">
         {right_table_html}
-    </div>
+        {image_html}
+        {left_table_html}
+        
+</div>
     """
 
-    # Display the nested three-column layout within the first column
-    st.markdown(container_html, unsafe_allow_html=True)
+# Display the nested three-column layout within the first column
+st.markdown(container_html, unsafe_allow_html=True)
 
-with col2:
-    st.image(f"data:image/png;base64,{encoded_images['car_bg']}", use_column_width=True)
 
 # Create two columns for the keyboards under the first two columns
 keyboard_col1, keyboard_col2 = st.columns(2)
@@ -393,27 +434,118 @@ keyboard_col1, keyboard_col2 = st.columns(2)
 with keyboard_col1:
     st.markdown('<div class="right-align-title">أدخل أرقام لوحتك</div>', unsafe_allow_html=True)
     with st.container():
-        st.markdown('<div class="keyboard-wrapper">', unsafe_allow_html=True)  # Start wrapper
         for row in keyboard_layout_arabic_numbers:
             cols = st.columns(len(row))
             for i, key in enumerate(row):
-                if cols[i].button(key, key=f"num_key_{key}"):
-                    handle_button_click(key, "number")
-        st.markdown('</div>', unsafe_allow_html=True)  # End wrapper
+                if cols[i].button(key, key=f"num_{key}", help="Click to enter number"):
+                    update_numbers(key)
 
 # Add the letter keyboard in the second column
 with keyboard_col2:
     st.markdown('<div class="right-align-title">أدخل أحرف لوحتك</div>', unsafe_allow_html=True)
     with st.container():
-        st.markdown('<div class="keyboard-wrapper">', unsafe_allow_html=True)  # Start wrapper
         for row in keyboard_layout:
             cols = st.columns(len(row))
             for i, key in enumerate(row):
-                if cols[i].button(key, key=f"letter_key_{key}"):
-                    handle_button_click(key, "letter")
-        st.markdown('</div>', unsafe_allow_html=True)  # End wrapper
+                if cols[i].button(key, key=f"btn_{key}", help="Click to enter letter"):
+                    update_text(key)
+
+      
+
+translation = {
+    'plate_no_length': 'عدد أرقام اللوحة✅',
+    'one_digit_one': 'رقم 1✅',
+    'one_digit_two': 'رقم 2✅',
+    'one_digit_three': 'رقم 3✅',
+    'one_digit_four':'رقم 4✅',
+    'one_digit_five':'رقم 5✅',
+    'one_digit_six':'رقم 6✅',
+    'one_digit_seven':'رقم 7✅',
+    'one_digit_eight':'رقم 8✅',
+    'one_digit_nine':'رقم 9✅',
+    'Contains_Tribe': 'حروف قبيلة✅🫡',
+    'is_triple_letters': 'حرف مكرر✅',
+    'First_Third_Match': 'الحرف الأول والثالث متطابقان ✅',
+    'contains_special_words': 'حروف كلمة مميزة ✅',
+    'contains_special_cars': 'اسم سيارة✅',
+    'similar_three_in_four':'ثلاث أرقام متطابقة من أصل أربعة ✅',
+    'similar_digits':'أرقام متطابقة ✅',
+    'in_order':'أرقام مرتبة✅',
+    'reversed_order':'أرقام معكوسة✅',
+    'saudi_tribes':'رمز قبيلة ✅',
+    'plaindromic_no':'رقم متناظر ✅',
+    'same_first_last_no':'الرقم الأول والأخير متطابقان ✅',
+    'same_two_sides':'رقمان متتاليين متطابقين ✅',
+    'emergency_no':'رقم حكومي ✅',
+    'same_middles_no':'رقمان وسطين متطابقين ✅',
+    'min_price':'أقل سعر',
+    'max_price':'أعلى سعر',
+    'avg_price':'متوسط الأسعار',
+    'num_observations':'عدد اللوحات المتشابهة'
+}
+
+# Custom CSS for Arabic RTL styling
+st.markdown("""
+    <style>
+        .card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            text-align: right;
+            font-family: Arial, sans-serif;
+            direction: rtl;
+        }
+        .title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #333;
+        }
+        .info {
+            font-size: 20px;
+            color: #555;
+            margin-top: 5px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 
 # Add the "قيم لوحتي" button in the middle
 if st.button("قيم لوحتي", key="evaluate_button"):
     if validate_input():
-        st.success("تم تقييم لوحتك بنجاح!")
+        data = {
+            "plate_number": typed_numbers_english,
+            "words": typed_arabic_spaced,
+            "threshold": 0.8
+        }
+        response = requests.post('https://plate-price.onrender.com/process_plate', json=data)
+        model_answer = response.json()
+        st.markdown(f"""
+        <div class="card">
+            <div class="info">{translation["num_observations"]}: {model_answer["num_observations"]}</div>
+            <div class="info">{translation["min_price"]}: {model_answer["min_price"]}</div>
+            <div class="info">{translation["max_price"]}: {model_answer["max_price"]}</div>
+            <div class="info">{translation["avg_price"]}: {model_answer["avg_price"]}</div>
+        </div>
+    """, unsafe_allow_html=True)
+         # Track if any true values exist
+        found_true_values = False  
+
+        for key, value in model_answer["top_consistent_columns"].items():
+            if value["majority_value"] == True:  
+                found_true_values = True  # At least one true value found
+                translated_key = translation.get(key, key) 
+                st.markdown(f"""
+                    <div class="card">
+                        <div class="title">{translated_key}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+# If no true values were found, display "لا توجد صفات مميزة"
+        if not found_true_values:
+            st.markdown("""
+                <div class="card">
+                    <div class="title">لا توجد عوامل مميزة</div>
+                </div>
+            """, unsafe_allow_html=True)
