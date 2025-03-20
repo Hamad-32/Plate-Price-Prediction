@@ -134,7 +134,7 @@ def get_en_letters(text):
     eng = ''
     for i in text:
         eng = eng + en_ar.get(i, '')+ ' ' # Get the English letter or empty string if not found
-    return eng.strip(' ')  # Reverse the output string
+    return eng[::-1].strip(' ')  # Reverse the output string
 
 
 def get_features(char,plate_no):
@@ -221,11 +221,11 @@ def get_features(char,plate_no):
 
 
 
-    return features
+    return en_text
 
 
 
-print(get_features('ك س أ','511'))
+print(get_features('أ س ك','511'))
 
 
 

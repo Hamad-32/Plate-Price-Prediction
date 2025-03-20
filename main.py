@@ -37,7 +37,7 @@ def get_en_letters(text):
     eng = ''
     for i in text:
         eng = eng + en_ar.get(i, '')+ ' ' # Get the English letter or empty string if not found
-    return eng.strip(' ')  # Reverse the output string
+    return eng[::-1].strip(' ')  # Reverse the output string
 
 
 
