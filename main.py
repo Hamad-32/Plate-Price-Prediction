@@ -368,10 +368,11 @@ def process_plate_number(plate_number, words, threshold=0.8):
 
     for col in valid_features:
         if col in top_5.columns:
-            most_common_value = top_5[col].value_counts().idxmax()
-            most_common_value_proportion = top_5[col].value_counts(normalize=True).max()
-            column_scores[col] = most_common_value_proportion
-            majority_values[col] = most_common_value
+            if top_5.shape[0] != 0:
+                most_common_value = top_5[col].value_counts().idxmax()
+                most_common_value_proportion = top_5[col].value_counts(normalize=True).max()
+                column_scores[col] = most_common_value_proportion
+                majority_values[col] = most_common_value
 
     # Sort: Word scores first, True values next, then False values
     sorted_columns = sorted(column_scores.items(), key=lambda x: (
