@@ -221,7 +221,7 @@ def get_features(char,plate_no):
 
 
 
-    return en_text
+    return features['contains_special_words']
 
 
 

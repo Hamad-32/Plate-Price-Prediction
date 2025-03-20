@@ -208,9 +208,9 @@ def get_features(char,plate_no):
     features['has_two_chars'] =  len(clean_text) == 2
     features['Contains_Tribe'] = any(tribe in char for tribe in tribes)
      # -- Case 7: English Characters (K S A)
-    features['contains_special_words'] = en_text in all_words
+    features['contains_special_words'] = False
     # -- Case 7: English Characters Cars Names (L X)
-    features['contains_special_cars'] = en_text in car_names
+    features['contains_special_cars'] = False
 
     features['thousands_plate_no'] = bool(re.match(r'^\d000$', plate_no))
     features['similar_three_in_four'] = bool(re.match(r"(\d(\d)\2{2}|\2{2}\d)", plate_no))
