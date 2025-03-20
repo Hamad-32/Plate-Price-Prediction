@@ -5,12 +5,12 @@ import numpy as np
 import re
 
 app = FastAPI()
-words_freq = pd.read_csv("data/words_frequency.csv")
+words_freq = pd.read_csv("C:\\Users\\alhar\\Downloads\\words_frequency.csv")
 words_freq.drop('Unnamed: 0',axis=1,inplace=True)
 words_freq['first_name_rank'] = words_freq['first_name_rank'].apply(lambda x : x /100)
 words_freq.columns = ["word", "word_freq_score"]
 
-first_rank = pd.read_csv("data/first_name_rank.csv")
+first_rank = pd.read_csv("C:\\Users\\alhar\\Downloads\\first_name_rank.csv")
 first_rank['first_name_rank'] = first_rank['first_name_rank'].apply(lambda x : x / 100)
 first_rank = first_rank[['first_name','first_name_rank']]
 
@@ -214,7 +214,7 @@ import pandas as pd
 import numpy as np
 
 # 1. Load the CSV file and select the first 200 rows
-df_raw = pd.read_csv("data/data.csv")
+df_raw = pd.read_csv("C:\\Users\\alhar\\Downloads\\data (5).csv")
 
 df_feature = df_raw[[ 'price','plate_no_length',
        'word_freq_score', 'first_name_score','similar_digits','saudi_tribes','one_digit_one', 'one_digit_two','Contains_Tribe', 
@@ -368,20 +368,44 @@ def process_plate_number(plate_number, words, threshold=0.8):
         else "df_three" if digit_count == 3
         else "df_four"
     )
-
+    print("Sorted Columns:", sorted_columns)
+    print("Majority Values:", majority_values)
+    print("Filtered Columns with True Majority:", [
+        col for col, score in sorted_columns if majority_values[col] is True
+    ])
     # Correct Return Statement
+# Identify features to exclude if 'similar_digits' is True
+    features_to_exclude_if_similar_digits = [
+        "same_first_last_no",
+        "same_two_sides",
+        "similar_three_in_four",
+        "same_middles_no"
+    ]
+
+# Identify features to exclude if 'similar_digits' is True
+
     return {
         "plate_number": plate_number,
         "selected_dataset": selected_dataset,
-        "top_5_consistent_columns": {
+        "top_consistent_columns": {
             col: {"score": score, "majority_value": majority_values[col]}
-            for col, score in sorted_columns[:5]
+            for col, score in sorted_columns
+            if (
+                majority_values[col] in [True, 1] or
+                col in ["word_freq_score", "first_name_score"]  # Always include these
+            )
+            and not (
+                "similar_digits" in majority_values
+                and majority_values["similar_digits"] in [True, 1]
+                and col in features_to_exclude_if_similar_digits
+            )  # Exclude specified features when 'similar_digits' is True
         },
         "min_price": float(min_price) if pd.notna(min_price) else None,
         "max_price": float(max_price) if pd.notna(max_price) else None,
         "avg_price": float(avg_price) if pd.notna(avg_price) else None,
         "num_observations": int(num_observations)  # Ensure proper data type
     }
+
 
 
 
