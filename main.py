@@ -138,11 +138,7 @@ def has_match_letters(text):
     # -- return true if ( N A N ) and excluded Case one ( A A A) 
     return bool(clean_text[0] == clean_text[2] and clean_text[1] != clean_text[2]) 
 
-def get_en_literrs(text):
-    eng = ''
-    for i in text:
-        eng+=
-        
+
 
 
 def get_features(char,plate_no):
