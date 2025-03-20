@@ -403,7 +403,8 @@ def process_plate_number(plate_number, words, threshold=0.8):
         "min_price": float(min_price) if pd.notna(min_price) else None,
         "max_price": float(max_price) if pd.notna(max_price) else None,
         "avg_price": float(avg_price) if pd.notna(avg_price) else None,
-        "num_observations": int(num_observations)  # Ensure proper data type
+        "num_observations": int(num_observations),  # Ensure proper data type
+        "input_features": input_row
     }
 
 
