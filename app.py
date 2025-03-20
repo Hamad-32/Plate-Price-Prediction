@@ -329,17 +329,24 @@ if st.button("قيم لوحتي", key="evaluate_button"):
         }
         response = requests.post('https://plate-price.onrender.com/process_plate', json=data)
         model_answer = response.json()
-        st.title("الإحصائيات")
-        st.markdown(f"""
-        <div class="card">
-            <div class="info">{translation["num_observations"]}: {model_answer["num_observations"]} </div>
-            <div class="info">{translation["min_price"]}: {model_answer["min_price"]} <img src="data:image/png;base64,{saudi_riyal}" width=15px/></div>
-            <div class="info">{translation["max_price"]}: {model_answer["max_price"]} <img src="data:image/png;base64,{saudi_riyal}" width=15px/></div>
-            <div class="info">{translation["avg_price"]}: {model_answer["avg_price"]} <img src="data:image/png;base64,{saudi_riyal}" width=15px/></div>
-        </div>
-    """, unsafe_allow_html=True)
+        if model_answer['num_observations'] == 0:
+             st.title("الإحصائيات")
+             st.markdown(f"""
+                <div class="card">
+                    <div class="info">امم 🤨 يفضل تشوف لوحة ثانية مميزة أكثر</div>
+                </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.title("الإحصائيات")
+            st.markdown(f"""
+                <div class="card">
+                    <div class="info">{translation["num_observations"]}: {model_answer["num_observations"]} </div>
+                    <div class="info">{translation["min_price"]}: {model_answer["min_price"]} <img src="data:image/png;base64,{saudi_riyal}" width=15px/></div>
+                    <div class="info">{translation["max_price"]}: {model_answer["max_price"]} <img src="data:image/png;base64,{saudi_riyal}" width=15px/></div>
+                    <div class="info">{translation["avg_price"]}: {model_answer["avg_price"]} <img src="data:image/png;base64,{saudi_riyal}" width=15px/></div>
+                </div>
+            """, unsafe_allow_html=True)
          # Track if any true values exist
-        found_true_values = False  
    
 
         st.title("العوامل المميزة")
@@ -377,9 +384,10 @@ if st.button("قيم لوحتي", key="evaluate_button"):
                     index = row * 2 + col_index
                     if index < num_cards:
                         cols[col_position].markdown(feature_cards[index], unsafe_allow_html=True)
+        
         else:
             st.markdown("""
                 <div class="card">
-                    <div class="title">لا توجد عوامل مميزة</div>
+                    <div class="title"> لا توجد عوامل مميزة</div>
                 </div>
             """, unsafe_allow_html=True)
