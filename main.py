@@ -14,6 +14,30 @@ first_rank = pd.read_csv("data/first_name_rank.csv")
 first_rank['first_name_rank'] = first_rank['first_name_rank'].apply(lambda x : x / 100)
 first_rank = first_rank[['first_name','first_name_rank']]
 
+en_ar = {
+'أ' : 'A',
+'ب' : 'B',
+'ح' : 'J',
+'د' : 'D',
+'ر' : 'R',
+'س' : 'S',
+'ص' : 'X',
+'ط' : 'T',
+'ع' : 'E',
+'ق' : 'G',
+'ك' : 'K',
+'ل': 'L',
+'م' : 'Z',
+'ن' : 'N',
+'ه' : 'H',
+'و' : 'U',
+'ى' : 'V'
+}
+def get_en_letters(text):
+    eng = ''
+    for i in text:
+        eng = eng + en_ar.get(i, '')+ ' ' # Get the English letter or empty string if not found
+    return eng.strip(' ')  # Reverse the output string
 
 
 
@@ -114,7 +138,11 @@ def has_match_letters(text):
     # -- return true if ( N A N ) and excluded Case one ( A A A) 
     return bool(clean_text[0] == clean_text[2] and clean_text[1] != clean_text[2]) 
 
-
+def get_en_literrs(text):
+    eng = ''
+    for i in text:
+        eng+=
+        
 
 
 def get_features(char,plate_no):
@@ -177,18 +205,19 @@ def get_features(char,plate_no):
     features['is_triple_letters'] = bool(re.search(r'(\S)\s*\1\s*\1', char))
     features['is_one_letters'] = bool(len(char) == 1)
     #  First Letter == Third Letter
-    clean_text = plate_no.replace(' ', '')
+    clean_text = char.replace(' ', '')
+    en_text = get_en_letters(clean_text)
 
     features['First_Third_Match'] = has_match_letters(clean_text)
     features['has_two_chars'] =  len(clean_text) == 2
-    features['Contains_Tribe'] = any(tribe in char for tribe in tribes_chart)
+    features['Contains_Tribe'] = any(tribe in char for tribe in tribes)
      # -- Case 7: English Characters (K S A)
-    features['contains_special_words'] = char in all_words
+    features['contains_special_words'] = en_text in all_words
     # -- Case 7: English Characters Cars Names (L X)
-    features['contains_special_cars'] = char in car_names
+    features['contains_special_cars'] = en_text in car_names
 
-    features['thousands_plate_no'] = bool(re.match(r'^\d000$', char))
-    features['similar_three_in_four'] = bool(re.match(r"(\d(\d)\2{2}|\2{2}\d)", char))
+    features['thousands_plate_no'] = bool(re.match(r'^\d000$', plate_no))
+    features['similar_three_in_four'] = bool(re.match(r"(\d(\d)\2{2}|\2{2}\d)", plate_no))
 
     # Get word & name score 
     word_freq_dict = dict(zip(words_freq['word'], words_freq['word_freq_score']))  # Create dictionary
