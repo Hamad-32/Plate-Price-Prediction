@@ -181,7 +181,7 @@ def get_features(char,plate_no):
 
     features['First_Third_Match'] = has_match_letters(clean_text)
     features['has_two_chars'] =  len(clean_text) == 2
-    features['Contains_Tribe'] = any(tribe in char for tribe in tribes)
+    features['Contains_Tribe'] = any(tribe in char for tribe in tribes_chart)
      # -- Case 7: English Characters (K S A)
     features['contains_special_words'] = char in all_words
     # -- Case 7: English Characters Cars Names (L X)
