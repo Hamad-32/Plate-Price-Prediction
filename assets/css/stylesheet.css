@@ -1,0 +1,181 @@
+/* General App Styling */
+[data-testid="stApp"] {
+    direction: rtl;
+    text-align: right;
+    background-image: url("data:image/png;base64,{bg_encoded}") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+}
+
+button[data-testid="baseButton-secondary"][data-baseweb="button"][aria-label="قيم لوحتي"] {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    font-size: 20px; /* Larger font size */
+    padding: 10px 20px; /* Add padding */
+    border-radius: 8px; /* Rounded corners */
+    border: none; /* Remove border */
+    cursor: pointer; /* Pointer cursor on hover */
+}
+/* Hover effect */
+button[data-testid="baseButton-secondary"][data-baseweb="button"][aria-label="قيم لوحتي"]:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+.right-align {
+    text-align: right !important;
+    direction: rtl !important;
+}
+
+div[data-testid="stMarkdownContainer"],
+div[data-testid="stSelectbox"] {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Header Styling */
+.stAppHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #c3c4c2;
+    position: fixed;
+    margin: 0px;
+    padding-top: 50px;
+    padding-bottom: 5px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    height: 120px;
+}
+
+.stAppHeader img {
+    width: 300px;
+    height: auto;
+}
+
+.stApp > div {
+    padding-top: 150px;
+}
+
+/* Container and Table Styling */
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+}
+
+.custom-table {
+    background-color: rgb(102, 102, 102);
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    border-color: rgb(102, 102, 102);
+    border-collapse: collapse;
+    margin: 0;
+    padding: 0;
+    border-radius: 8px;
+    border-width: 0.666667px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 6px 2px, rgba(0, 0, 0, 0.3) 0px 0px 2px 2px inset;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.cell-large {
+    background-color: rgb(237, 237, 237);
+    border-radius: 8px 4px 4px;
+    font-size: 36px;
+    font-weight: 700;
+    text-shadow: rgb(255, 255, 255) -2px -2px 0px, rgba(0, 0, 0, 0.1) 2px 2px 0px;
+    padding: 10px;
+    border: 0.666667px solid rgb(102, 102, 102);
+    height: 90px;
+}
+
+.cell-medium {
+    background-color: rgb(237, 237, 237);
+    border-radius: 4px;
+    font-size: 28px;
+    font-weight: 700;
+    padding: 10px;
+    border: 0.666667px solid rgb(102, 102, 102);
+    height: 90px;
+}
+
+.image-container {
+    background-color: rgb(237, 237, 237);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 180px;
+    padding: 0;
+    margin-bottom: 15px;
+    border: 0.666667px solid rgb(102, 102, 102);
+    border-radius: 0px;
+}
+
+.image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+}
+
+/* Keyboard Styling */
+.keyboard-btn {
+    display: inline-block;
+    background-color: #f0f0f0;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 5px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    width: 60px;
+    height: 60px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.keyboard-btn:hover {
+    background-color: #ddd;
+    transform: scale(1.05);
+}
+
+.keyboard-btn:active {
+    background-color: #ccc;
+    transform: scale(0.95);
+}
+
+/* Feature Cards Styling */
+.feature-card {
+    width: 150px;
+    height: 150px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.no-features {
+    background-color: #ffdddd;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #d9534f;
+    margin-top: 20px;
+}
