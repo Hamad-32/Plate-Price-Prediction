@@ -5,12 +5,12 @@ import numpy as np
 import re
 
 app = FastAPI()
-words_freq = pd.read_csv("C:\\Users\\alhar\\Downloads\\words_frequency.csv")
+words_freq = pd.read_csv("data/words_frequency.csv")
 words_freq.drop('Unnamed: 0',axis=1,inplace=True)
 words_freq['first_name_rank'] = words_freq['first_name_rank'].apply(lambda x : x /100)
 words_freq.columns = ["word", "word_freq_score"]
 
-first_rank = pd.read_csv("C:\\Users\\alhar\\Downloads\\first_name_rank.csv")
+first_rank = pd.read_csv("data/first_name_rank.csv")
 first_rank['first_name_rank'] = first_rank['first_name_rank'].apply(lambda x : x / 100)
 first_rank = first_rank[['first_name','first_name_rank']]
 
@@ -214,7 +214,7 @@ import pandas as pd
 import numpy as np
 
 # 1. Load the CSV file and select the first 200 rows
-df_raw = pd.read_csv("C:\\Users\\alhar\\Downloads\\data (5).csv")
+df_raw = pd.read_csv("data/data.csv")
 
 df_feature = df_raw[[ 'price','plate_no_length',
        'word_freq_score', 'first_name_score','similar_digits','saudi_tribes','one_digit_one', 'one_digit_two','Contains_Tribe', 
